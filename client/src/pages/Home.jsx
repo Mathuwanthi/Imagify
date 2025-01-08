@@ -15,6 +15,8 @@ const Home = () => {
     const [allPosts, setAllPosts] = useState(null);
 
     const [searchText, setSearchText] = useState('');
+    const [searchedResults, setSearchedResults] = useState(null);
+    const [searchTimeout, setSearchTimeout] = useState(null);
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -38,7 +40,24 @@ const Home = () => {
             }
         }
         fetchPosts();
-    }, [])
+    }, []);
+
+    const handleSearchChange = (e) => {
+        const searchValue = e.target.value; 
+        clearTimeout(searchTimeout);
+        setSearchText(searchValue);
+
+        setSearchTimeout(
+            setTimeout(() => {
+                const searchResults = allPosts?.filter((item) => item.name.toLowerCase().includes(searchValue.toLowerCase()) || item.prompt.toLowerCase().includes(searchValue.toLowerCase()));
+                
+                setSearchedResults(searchResults);
+        
+            },500)
+            
+        );
+        
+    }
 
   return (
     <section className='max-w-7xl mx-auto'>
@@ -48,7 +67,14 @@ const Home = () => {
         </div>
 
         <div className='mt-16'>
-            <FormField/>
+            <FormField
+            LableName= "Search posts"
+            type="text"
+            name="text"
+            placeholder="Search posts"
+            value={searchText}
+            handleChange={handleSearchChange}
+            />
         </div>
 
         <div className='mt-10'>
@@ -63,7 +89,7 @@ const Home = () => {
                             </h2>)}
                             <div className='grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3'>
                                 {searchText ? (
-                                    <RenderCards data={[]} title="No search results found"/>
+                                    <RenderCards data={searchedResults} title="No search results found"/>
                                 
                                 ):(
                                     <RenderCards data={allPosts} title="No posts found"/>
